@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="baidu-site-verification" content="code-ULv5esGRN0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lucksun.work","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="注册注册功能是此项目中最后一个功能模块，我原本以为注册的逻辑很简单，没想到如此的繁琐，以至于项目频频短路，而且没有测试用的注册账号，所以在真的注册时并没有拿到相应的数据。 其次还有和收藏分享有关的功能，其基本的实现逻辑与登录等类似，区别之处就是数据的交互并不只是单一的接口，有关数据状态的变更还是要依靠ngrx来检测，所以关于分享与收藏并不打算繁琐的总结了。  场景在登录页面和首页头像处有注册的入口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Angular网易云】--29、注册">
+<meta property="og:url" content="http://lucksun.work/posts/b51902b1/index.html">
+<meta property="og:site_name" content="Luck_SUN">
+<meta property="og:description" content="注册注册功能是此项目中最后一个功能模块，我原本以为注册的逻辑很简单，没想到如此的繁琐，以至于项目频频短路，而且没有测试用的注册账号，所以在真的注册时并没有拿到相应的数据。 其次还有和收藏分享有关的功能，其基本的实现逻辑与登录等类似，区别之处就是数据的交互并不只是单一的接口，有关数据状态的变更还是要依靠ngrx来检测，所以关于分享与收藏并不打算繁琐的总结了。  场景在登录页面和首页头像处有注册的入口">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210116165032470.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210116185731102.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2021-01-15T09:23:38.000Z">
+<meta property="article:modified_time" content="2021-01-17T08:25:33.811Z">
+<meta property="article:author" content="Luck_SUN">
+<meta property="article:tag" content="CloudMusic">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20210116165032470.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="http://lucksun.work/posts/b51902b1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Angular网易云】--29、注册 | Luck_SUN</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6cbaa2e8cde5f381abcb1a50f8cdfc86";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Luck_SUN" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Luck_SUN</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">43</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/sunwenwei" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lucksun.work/posts/b51902b1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Luck_SUN">
+      <meta itemprop="description" content="凛冬散尽，星河长明">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luck_SUN">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Angular网易云】--29、注册
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-15 17:23:38" itemprop="dateCreated datePublished" datetime="2021-01-15T17:23:38+08:00">2021-01-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-17 16:25:33" itemprop="dateModified" datetime="2021-01-17T16:25:33+08:00">2021-01-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CloudMusic/" itemprop="url" rel="index"><span itemprop="name">CloudMusic</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>11k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h1><p>注册功能是此项目中最后一个功能模块，我原本以为注册的逻辑很简单，没想到如此的繁琐，以至于项目频频短路，而且没有测试用的注册账号，所以在真的注册时并没有拿到相应的数据。</p>
+<p>其次还有和收藏分享有关的功能，其基本的实现逻辑与登录等类似，区别之处就是数据的交互并不只是单一的接口，有关数据状态的变更还是要依靠ngrx来检测，所以关于分享与收藏并不打算繁琐的总结了。</p>
+<hr>
+<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>在登录页面和首页头像处有注册的入口，在点击触发后能够将弹窗显示并且类型为事先定义的register类型。在注册页面注入表单组件能够获取手机号码以及设置密码，然后能够根据密码来调用验证码的发送与判断。.</p>
+<h2 id="页面跳转"><a href="#页面跳转" class="headerlink" title="页面跳转"></a>页面跳转</h2><ul>
+<li>app.component.html</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">nz-menu-item</span> (<span class="attr">click</span>)=<span class="string">&quot;openModalByMenu(&#x27;register&#x27;)&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">i</span> <span class="attr">nz-icon</span> <span class="attr">nzType</span>=<span class="string">&quot;user-add&quot;</span> <span class="attr">nzTheme</span>=<span class="string">&quot;outline&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span>注册</span><br><span class="line"> <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>app.component.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">constructor</span>(</span><br><span class="line">      private memberBatchActionsServer: MemberBatchActionsService,</span><br><span class="line">  ) &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  openModalByMenu (type: <span class="string">&#x27;loginByPhone&#x27;</span> | <span class="string">&#x27;register&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (type === <span class="string">&#x27;loginByPhone&#x27;</span>) &#123;</span><br><span class="line">          <span class="built_in">this</span>.openModal(ModalTypes.LoginByPhone);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="built_in">this</span>.openModal(ModalTypes.Register);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// 打开弹窗</span></span><br><span class="line">  openModal (type: ModalTypes) &#123;</span><br><span class="line">      <span class="built_in">this</span>.memberBatchActionsServer.controlModal(<span class="literal">true</span>, type);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>弹窗的状态逻辑也是根据之前设置的action实现的。而在首页订阅弹框的显隐状态与类型即可动态的添加浮层。</p>
+<hr>
+<ul>
+<li>wy-layer-register.component.html</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;register modal-content&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;modal-wrap&quot;</span> *<span class="attr">ngIf</span>=<span class="string">&quot;!showCode else code&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">form</span> <span class="attr">nz-form</span> <span class="attr">nzLayout</span>=<span class="string">&quot;vertical&quot;</span> [<span class="attr">formGroup</span>]=<span class="string">&quot;formModel&quot;</span> (<span class="attr">ngSubmit</span>)=<span class="string">&quot;onSubmit()&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-label</span>&gt;</span>手机号<span class="tag">&lt;/<span class="name">nz-form-label</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span> <span class="attr">nzHasFeedback</span> <span class="attr">nzErrorTip</span>=<span class="string">&quot;请填写正确的手机号&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">nz-input-group</span> <span class="attr">nzPrefixIcon</span>=<span class="string">&quot;mobile&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;tel&quot;</span> <span class="attr">nz-input</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入手机号&quot;</span> <span class="attr">formControlName</span>=<span class="string">&quot;phone&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">nz-input-group</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-label</span>&gt;</span>密码<span class="tag">&lt;/<span class="name">nz-form-label</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span> <span class="attr">nzHasFeedback</span> <span class="attr">nzErrorTip</span>=<span class="string">&quot;请输入密码&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">nz-input-group</span> <span class="attr">nzPrefixIcon</span>=<span class="string">&quot;lock&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;password&quot;</span> <span class="attr">nz-input</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入密码&quot;</span> <span class="attr">formControlName</span>=<span class="string">&quot;password&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">nz-input-group</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">button</span> <span class="attr">nz-button</span> <span class="attr">nzBlock</span> <span class="attr">nzType</span>=<span class="string">&quot;primary&quot;</span> [<span class="attr">disabled</span>]=<span class="string">&quot;!formModel.valid&quot;</span>&gt;</span>下一步<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">code</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;modal-wrap&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">app-wy-check-code</span></span></span><br><span class="line"><span class="tag">          [<span class="attr">phone</span>]=<span class="string">&quot;formModel.get(&#x27;phone&#x27;).value&quot;</span></span></span><br><span class="line"><span class="tag">          [<span class="attr">codePass</span>]=<span class="string">&quot;codePass&quot;</span></span></span><br><span class="line"><span class="tag">          [<span class="attr">timing</span>]=<span class="string">&quot;timing&quot;</span></span></span><br><span class="line"><span class="tag">          (<span class="attr">onCheckCode</span>)=<span class="string">&quot;onCheckCode($event)&quot;</span></span></span><br><span class="line"><span class="tag">          (<span class="attr">onReatSendCode</span>)=<span class="string">&quot;sendCode()&quot;</span></span></span><br><span class="line"><span class="tag">          (<span class="attr">onCheckExist</span>)=<span class="string">&quot;onCheckExist()&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">app-wy-check-code</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;m-footer clearfix&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> (<span class="attr">click</span>)=<span class="string">&quot;changeType()&quot;</span>&gt;</span><span class="symbol">&amp;lt;</span> 其它登陆方式<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img data-src="https://img-blog.csdnimg.cn/20210116165032470.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70"><br>打开页面时会显示表单组件，动态响应输入值后点击下一步即是发送验证码，此时页面会改变，因此可以创建新的组件来单独实现验证码的检查。</p>
+<ul>
+<li>wy-layer-register.component.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">enum Exist &#123;</span><br><span class="line">    <span class="string">&#x27;存在&#x27;</span> = <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;不存在&#x27;</span> = <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line">@Component(&#123;</span><br><span class="line">    selector: <span class="string">&#x27;app-wy-layer-register&#x27;</span>,</span><br><span class="line">    templateUrl: <span class="string">&#x27;./wy-layer-register.component.html&#x27;</span>,</span><br><span class="line">    styleUrls: [<span class="string">&#x27;./wy-layer-register.component.less&#x27;</span>],</span><br><span class="line">    changeDetection: ChangeDetectionStrategy.OnPush</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">WyLayerRegisterComponent</span> <span class="title">implements</span> <span class="title">OnInit</span>, <span class="title">OnChanges</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Input() visible = <span class="literal">false</span>;</span><br><span class="line">    @Output() onChangeModalType = <span class="keyword">new</span> EventEmitter&lt;string&gt;();</span><br><span class="line">    @Output() onRegister = <span class="keyword">new</span> EventEmitter&lt;string&gt;();</span><br><span class="line"></span><br><span class="line">    showCode = <span class="literal">false</span>;</span><br><span class="line">    formModel: FormGroup;</span><br><span class="line">    timing: number;</span><br><span class="line">    codePass: string | boolean = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(</span><br><span class="line">        private fb: FormBuilder,</span><br><span class="line">        private message: NzMessageService,</span><br><span class="line">        private memberServe: MemberService,</span><br><span class="line">        private cdr: ChangeDetectorRef</span><br><span class="line">    ) &#123; &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    ngOnChanges (changes: SimpleChanges): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (changes.visible &amp;&amp; !changes.visible.firstChange) &#123;</span><br><span class="line">            <span class="built_in">this</span>.formModel.markAllAsTouched();</span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">this</span>.visible) &#123;</span><br><span class="line">                <span class="built_in">this</span>.showCode = <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ngOnInit (): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.formModel = <span class="built_in">this</span>.fb.group(&#123;</span><br><span class="line">            phone: [<span class="string">&#x27;&#x27;</span>, [Validators.required, Validators.pattern(<span class="regexp">/^1\d&#123;10&#125;$/</span>)]],</span><br><span class="line">            password: [<span class="string">&#x27;&#x27;</span>, [Validators.required, Validators.minLength(<span class="number">6</span>)]]</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    onSubmit () &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.formModel.valid) &#123;</span><br><span class="line">            <span class="built_in">this</span>.sendCode();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sendCode () &#123;</span><br><span class="line">      <span class="built_in">this</span>.memberServe.sendCode(<span class="built_in">this</span>.formModel.get(<span class="string">&#x27;phone&#x27;</span>).value).subscribe(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.timing = <span class="number">60</span>;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">this</span>.showCode) &#123;</span><br><span class="line">                <span class="built_in">this</span>.showCode = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">this</span>.cdr.markForCheck();</span><br><span class="line">            interval(<span class="number">1000</span>).pipe(take(<span class="number">60</span>)).subscribe(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">this</span>.timing--;</span><br><span class="line">                <span class="built_in">this</span>.cdr.markForCheck();</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;, <span class="function"><span class="params">error</span> =&gt;</span> <span class="built_in">this</span>.message.error(error.message))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    onCheckCode (code: string) &#123;</span><br><span class="line">        <span class="built_in">this</span>.memberServe.checkCode(<span class="built_in">this</span>.formModel.get(<span class="string">&#x27;phone&#x27;</span>).value, <span class="built_in">Number</span>(code))</span><br><span class="line">            .subscribe(</span><br><span class="line">                () =&gt; <span class="built_in">this</span>.codePass = <span class="literal">true</span>,</span><br><span class="line">                () =&gt; <span class="built_in">this</span>.codePass = <span class="literal">false</span>,</span><br><span class="line">                () =&gt; <span class="built_in">this</span>.cdr.markForCheck()</span><br><span class="line">            );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    onCheckExist () &#123;</span><br><span class="line">        <span class="keyword">const</span> phone = <span class="built_in">this</span>.formModel.get(<span class="string">&#x27;phone&#x27;</span>).value;</span><br><span class="line">        <span class="built_in">this</span>.memberServe.checkExist(<span class="built_in">Number</span>(phone)).subscribe(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&#x27;checkExist&#x27;</span>, res);</span><br><span class="line">            <span class="keyword">if</span> (Exist[res] === <span class="string">&#x27;存在&#x27;</span>) &#123;</span><br><span class="line">                <span class="built_in">this</span>.message.error(<span class="string">&#x27;账号已存在，可直接登陆&#x27;</span>);</span><br><span class="line">                <span class="built_in">this</span>.changeType(ModalTypes.LoginByPhone);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">this</span>.onRegister.emit(phone);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    changeType (type = ModalTypes.Default) &#123;</span><br><span class="line">        <span class="built_in">this</span>.onChangeModalType.emit(type);</span><br><span class="line">        <span class="built_in">this</span>.showCode = <span class="literal">false</span>;</span><br><span class="line">        <span class="built_in">this</span>.formModel.reset()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输入手机号与密码之后点击下一步将会触发onSubmit中sendCode回调，其中有段timer的递减是用来提示重新发送验证码的倒计时，，其中有点问题的就是变更监测的模式是使用了onPush策略，所以timer的递减后传给验证码组件时就会出现停顿的现象，，此时要手动的触发变更监测。就是使用ChangeDelectorRef类型中markForCheck方法。</p>
+<hr>
+<h2 id="验证码组件"><a href="#验证码组件" class="headerlink" title="验证码组件"></a>验证码组件</h2><ul>
+<li>wy-check-code.component.html</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;check-code&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;js-mobwrap&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;s-fc3&quot;</span>&gt;</span></span><br><span class="line">        你的手机号：</span><br><span class="line">        <span class="tag">&lt;<span class="name">strong</span> <span class="attr">class</span>=<span class="string">&quot;s-fc1&quot;</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;js-mob&quot;</span>&gt;</span>&#123;&#123;phone&#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;s-fc4&quot;</span>&gt;</span>为了安全，我们会给您发送短信验证码<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;form&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">form</span> <span class="attr">nz-form</span> <span class="attr">nzLayout</span>=<span class="string">&quot;vertical&quot;</span> [<span class="attr">formGroup</span>]=<span class="string">&quot;formModel&quot;</span> (<span class="attr">ngSubmit</span>)=<span class="string">&quot;onSubmit()&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">app-wy-code</span> <span class="attr">formControlName</span>=<span class="string">&quot;code&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-wy-code</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;send clearfix&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;err&quot;</span> [<span class="attr">hidden</span>]=<span class="string">&quot;!showErrorTip&quot;</span>&gt;</span>验证码不正确<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;txt&quot;</span> *<span class="attr">ngIf</span>=<span class="string">&quot;!showRepeatBtn else repeatBtn&quot;</span>&gt;</span>&#123;&#123;timing&#125;&#125;s<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">repeatBtn</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;txt repeat&quot;</span> (<span class="attr">click</span>)=<span class="string">&quot;onReatSendCode.emit()&quot;</span>&gt;</span>重新发送<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">button</span> <span class="attr">nz-button</span> <span class="attr">nzType</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">nzBlock</span>&gt;</span>下一步<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img data-src="https://img-blog.csdnimg.cn/20210116185731102.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70"></p>
+<p>此页面是下一步后的跳转页面，其中红色框中的验证码输入内容及逻辑放在了新的组件中。</p>
+<ul>
+<li>wy-check-code.component.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">private phoneHideStr = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">formModel: FormGroup;</span><br><span class="line">showRepeatBtn = <span class="literal">false</span>;</span><br><span class="line">showErrorTip = <span class="literal">false</span>;</span><br><span class="line">@Input() codePass = <span class="literal">false</span>;</span><br><span class="line">@Input() timing: number;</span><br><span class="line">@Input()</span><br><span class="line">set phone (phone: string) &#123;</span><br><span class="line">    <span class="keyword">const</span> arr = phone.split(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    arr.splice(<span class="number">3</span>, <span class="number">4</span>, <span class="string">&#x27;****&#x27;</span>);</span><br><span class="line">    <span class="built_in">this</span>.phoneHideStr = arr.join(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">get phone () &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.phoneHideStr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Output() onCheckCode = <span class="keyword">new</span> EventEmitter&lt;string&gt;();</span><br><span class="line">@Output() onReatSendCode = <span class="keyword">new</span> EventEmitter&lt;string&gt;();</span><br><span class="line">@Output() onCheckExist = <span class="keyword">new</span> EventEmitter&lt;<span class="keyword">void</span>&gt;();</span><br><span class="line"><span class="keyword">constructor</span>() &#123; &#125;</span><br><span class="line"></span><br><span class="line">ngOnInit () &#123;</span><br><span class="line">    <span class="built_in">this</span>.formModel = <span class="keyword">new</span> FormGroup(&#123;</span><br><span class="line">        code: <span class="keyword">new</span> FormControl(<span class="string">&#x27;&#x27;</span>, [Validators.required, Validators.pattern(<span class="regexp">/\d&#123;4&#125;/</span>)])</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> codeControl = <span class="built_in">this</span>.formModel.get(<span class="string">&#x27;code&#x27;</span>);</span><br><span class="line">    codeControl.statusChanges.subscribe(<span class="function"><span class="params">status</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (status === <span class="string">&#x27;VALID&#x27;</span>) &#123;</span><br><span class="line">            <span class="built_in">this</span>.onCheckCode.emit(<span class="built_in">this</span>.formModel.value.code);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ngOnChanges (changes: SimpleChanges): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.timing) &#123;</span><br><span class="line">        <span class="built_in">this</span>.showRepeatBtn = <span class="built_in">this</span>.timing &lt;= <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (changes.codePass &amp;&amp; !changes.codePass.firstChange) &#123;</span><br><span class="line">        <span class="built_in">this</span>.showErrorTip = !<span class="built_in">this</span>.codePass;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">onSubmit () &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.formModel.valid &amp;&amp; <span class="built_in">this</span>.codePass) &#123;</span><br><span class="line">        <span class="built_in">this</span>.onCheckExist.emit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>页面初始化时，会创建表单组件，添加表单控制器code。因为在展示手机号的时候要对数据加密，所以添加了对手机号二次处理的set、get方法。然后对表单控制器属性添加状态监测，当表单验证通过时会将输入的验证码发射出去，然后调用验证接口。</p>
+<h2 id="处理验证码"><a href="#处理验证码" class="headerlink" title="处理验证码"></a>处理验证码</h2><p>验证码的输入逻辑以及样式放在了单独的组件中。但是验证逻辑仍然在父组件中，所以关于其输入的结构都会在父层做处理。</p>
+<ul>
+<li>wy-code.component.html<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;code-wrap clearfix&quot;</span> #<span class="attr">codeWrap</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;u-word&quot;</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let item of inputArr; index as i&quot;</span> [<span class="attr">class.focus</span>]=<span class="string">&quot;result[i]&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span> <span class="attr">maxlength</span>=<span class="string">&quot;1&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>这里是循环了四个输入框，但是样式上有点小复杂，自己尝试实现，未果！</p>
+<ul>
+<li>wy-code.component.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> CODELEN = <span class="number">4</span>;</span><br><span class="line">@Component(&#123;</span><br><span class="line">    selector: <span class="string">&#x27;app-wy-code&#x27;</span>,</span><br><span class="line">    templateUrl: <span class="string">&#x27;./wy-code.component.html&#x27;</span>,</span><br><span class="line">    styleUrls: [<span class="string">&#x27;./wy-code.component.less&#x27;</span>],</span><br><span class="line">    providers: [</span><br><span class="line">        &#123;</span><br><span class="line">            provide: NG_VALUE_ACCESSOR,</span><br><span class="line">            useExisting: forwardRef(<span class="function">() =&gt;</span> WyCodeComponent),</span><br><span class="line">            multi: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">WyCodeComponent</span> <span class="title">implements</span> <span class="title">OnInit</span>, <span class="title">ControlValueAccessor</span> </span>&#123;</span><br><span class="line">    inputArr = [];</span><br><span class="line">    inputsEl: HTMLElement[];</span><br><span class="line">    private code: string;</span><br><span class="line"></span><br><span class="line">    result: string[] = [];</span><br><span class="line">    currentFocusIndex = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    private destory$ = <span class="keyword">new</span> Subject();</span><br><span class="line">    @ViewChild(<span class="string">&#x27;codeWrap&#x27;</span>, &#123; <span class="attr">static</span>: <span class="literal">true</span> &#125;) private codeWrap: ElementRef;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(private cdr: ChangeDetectorRef) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    ngOnInit () &#123;</span><br><span class="line">        <span class="built_in">this</span>.inputArr = <span class="built_in">Array</span>(CODELEN).fill(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ngAfterViewInit (): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.inputsEl = <span class="built_in">this</span>.codeWrap.nativeElement.getElementsByClassName(<span class="string">&#x27;item&#x27;</span>) <span class="keyword">as</span> HTMLElement[];</span><br><span class="line">        <span class="built_in">this</span>.inputsEl[<span class="number">0</span>].focus();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> a = <span class="number">0</span>; a &lt; <span class="built_in">this</span>.inputsEl.length; a++) &#123;</span><br><span class="line">            <span class="keyword">const</span> item = <span class="built_in">this</span>.inputsEl[a];</span><br><span class="line">            fromEvent(item, <span class="string">&#x27;keyup&#x27;</span>).pipe(takeUntil(<span class="built_in">this</span>.destory$)).subscribe(<span class="function">(<span class="params">event: KeyboardEvent</span>) =&gt;</span> <span class="built_in">this</span>.listenKeyUp(event));</span><br><span class="line">            fromEvent(item, <span class="string">&#x27;click&#x27;</span>).pipe(takeUntil(<span class="built_in">this</span>.destory$)).subscribe(<span class="function">() =&gt;</span> <span class="built_in">this</span>.currentFocusIndex = a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private listenKeyUp (event: KeyboardEvent) &#123;</span><br><span class="line">        <span class="keyword">const</span> target = event.target <span class="keyword">as</span> HTMLInputElement;</span><br><span class="line">        <span class="keyword">const</span> value = target.value;</span><br><span class="line">        <span class="keyword">const</span> isBackSpace = event.key === <span class="string">&quot;Backspace&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="regexp">/\D/</span>.test(value)) &#123;</span><br><span class="line">            target.value = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="built_in">this</span>.result[<span class="built_in">this</span>.currentFocusIndex] = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (value) &#123;</span><br><span class="line">            <span class="built_in">this</span>.result[<span class="built_in">this</span>.currentFocusIndex] = value;</span><br><span class="line">            <span class="built_in">this</span>.currentFocusIndex = (<span class="built_in">this</span>.currentFocusIndex + <span class="number">1</span>) % CODELEN;</span><br><span class="line">            <span class="built_in">this</span>.inputsEl[<span class="built_in">this</span>.currentFocusIndex].focus();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isBackSpace) &#123;</span><br><span class="line">            <span class="built_in">this</span>.result[<span class="built_in">this</span>.currentFocusIndex] = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="built_in">this</span>.currentFocusIndex = <span class="built_in">Math</span>.max(<span class="built_in">this</span>.currentFocusIndex - <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">            <span class="built_in">this</span>.inputsEl[<span class="built_in">this</span>.currentFocusIndex].focus();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">this</span>.checkResult(<span class="built_in">this</span>.result);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private checkResult (result: string[]) &#123;</span><br><span class="line">        <span class="keyword">const</span> codeStr = result.join(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">        <span class="built_in">this</span>.setValue(codeStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private setValue (code: string) &#123;</span><br><span class="line">        <span class="built_in">this</span>.code = code;</span><br><span class="line">        <span class="built_in">this</span>.onValueChange(code);</span><br><span class="line">        <span class="built_in">this</span>.cdr.markForCheck();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private onValueChange (value: string): <span class="keyword">void</span> &#123; &#125;</span><br><span class="line">    private onTouched (): <span class="keyword">void</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    writeValue (code: string): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.setValue(code);</span><br><span class="line">    &#125;</span><br><span class="line">    registerOnChange (fn: <span class="function">(<span class="params">value: string</span>) =&gt;</span> <span class="keyword">void</span>): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.onValueChange = fn;</span><br><span class="line">    &#125;</span><br><span class="line">    registerOnTouched (fn: <span class="function">() =&gt;</span> <span class="keyword">void</span>): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.onTouched = fn;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ngOnDestroy (): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.destory$.next();</span><br><span class="line">        <span class="built_in">this</span>.destory$.complete();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当组件视图初始化之后会对四个输入框进行监听，对删除键的交互以及匹配输入值不能为数值以外的其他值。</p>
+<p><strong>其中使用了自定义表单控件ControlValueAccessor，关于这个知识点我的能力是解释不清楚的，再看了一些博客和介绍之后，推荐有兴趣的可以去看一下这篇文章：<br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014129567">别再对 Angular 表单的 ControlValueAccessor 感到迷惑</a></strong></p>
+<hr>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>得以其偏爱，倾尽平生慷慨</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      <div style="display: inline-block;">
+        <img src="/images/reward.png" alt="Luck_SUN 美色当前,忠义让步">
+        <p>美色当前,忠义让步</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/CloudMusic/" rel="tag"><i class="fa fa-tag"></i> CloudMusic</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/359b25ac/" rel="prev" title="【Angular网易云】--28、个人中心">
+      <i class="fa fa-chevron-left"></i> 【Angular网易云】--28、个人中心
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/c8cb5db9/" rel="next" title="【Angular网易云】--30、总结">
+      【Angular网易云】--30、总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C"><span class="nav-number">1.</span> <span class="nav-text">注册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC"><span class="nav-number">1.2.</span> <span class="nav-text">页面跳转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E7%BB%84%E4%BB%B6"><span class="nav-number">1.3.</span> <span class="nav-text">验证码组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="nav-number">1.4.</span> <span class="nav-text">处理验证码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Luck_SUN"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Luck_SUN</p>
+  <div class="site-description" itemprop="description">凛冬散尽，星河长明</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/sunwenwei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;sunwenwei" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sunWorkOne@163.com" title="E-Mail → mailto:sunWorkOne@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/u/6411331687?is_all=1" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;u&#x2F;6411331687?is_all&#x3D;1" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/sungoodluck666" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;sungoodluck666" rel="noopener" target="_blank"><i class="fa fa-eye fa-fw"></i>CSDN</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luck_SUN</span>
+    <span class="post-meta-divider"><br/></span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">184k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:47</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https'){
+   bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+  }
+  else{
+  bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+  }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'http://lucksun.work/posts/b51902b1/',]
+      });
+      });
+  </script>
+
+</body>
+<script type="text/javascript" src="/js/click_show_text.js"></script>
+</html>

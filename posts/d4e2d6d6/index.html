@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="baidu-site-verification" content="code-ULv5esGRN0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lucksun.work","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="登录实现就目前的进度来看，是没有实现token验证的，所以所有的登录也只是简单的验证账密，即使账密的复写也只是存在localstorage内存中的，所以关于更加安全的登录不知道后面会不会修改。 切换弹窗页面开始实现的default页面只是用来判断登录还是注册，所以说这一步的操作还是要更换弹窗内的渲染内容的。 将创建好的登录模块和注册模块添加到 app.component.html中的wy-laye">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Angular网易云】--26、登录&#x2F;登出">
+<meta property="og:url" content="http://lucksun.work/posts/d4e2d6d6/index.html">
+<meta property="og:site_name" content="Luck_SUN">
+<meta property="og:description" content="登录实现就目前的进度来看，是没有实现token验证的，所以所有的登录也只是简单的验证账密，即使账密的复写也只是存在localstorage内存中的，所以关于更加安全的登录不知道后面会不会修改。 切换弹窗页面开始实现的default页面只是用来判断登录还是注册，所以说这一步的操作还是要更换弹窗内的渲染内容的。 将创建好的登录模块和注册模块添加到 app.component.html中的wy-laye">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210114194342967.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210114194352305.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210114201822368.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210114203021247.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2021-01-12T09:23:38.000Z">
+<meta property="article:modified_time" content="2021-01-17T08:25:33.811Z">
+<meta property="article:author" content="Luck_SUN">
+<meta property="article:tag" content="CloudMusic">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20210114194342967.png">
+
+<link rel="canonical" href="http://lucksun.work/posts/d4e2d6d6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Angular网易云】--26、登录/登出 | Luck_SUN</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6cbaa2e8cde5f381abcb1a50f8cdfc86";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Luck_SUN" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Luck_SUN</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">43</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/sunwenwei" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lucksun.work/posts/d4e2d6d6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Luck_SUN">
+      <meta itemprop="description" content="凛冬散尽，星河长明">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luck_SUN">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Angular网易云】--26、登录/登出
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-12 17:23:38" itemprop="dateCreated datePublished" datetime="2021-01-12T17:23:38+08:00">2021-01-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-17 16:25:33" itemprop="dateModified" datetime="2021-01-17T16:25:33+08:00">2021-01-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CloudMusic/" itemprop="url" rel="index"><span itemprop="name">CloudMusic</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="登录实现"><a href="#登录实现" class="headerlink" title="登录实现"></a>登录实现</h1><p>就目前的进度来看，是没有实现token验证的，所以所有的登录也只是简单的验证账密，即使账密的复写也只是存在localstorage内存中的，所以关于更加安全的登录不知道后面会不会修改。<br><img data-src="https://img-blog.csdnimg.cn/20210114194342967.png" alt="在这里插入图片描述"><br><img data-src="https://img-blog.csdnimg.cn/20210114194352305.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="切换弹窗页面"><a href="#切换弹窗页面" class="headerlink" title="切换弹窗页面"></a>切换弹窗页面</h2><p>开始实现的default页面只是用来判断登录还是注册，所以说这一步的操作还是要更换弹窗内的渲染内容的。</p>
+<pre><code>将创建好的登录模块和注册模块添加到
+app.component.html中的wy-layer-modal标签内。</code></pre>
+<ul>
+<li><p>app.component.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-wy-layer-modal</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-wy-layer-login</span> <span class="attr">name</span>=<span class="string">&quot;login&quot;</span> [<span class="attr">wyRememberLogin</span>]=<span class="string">&quot;wyRememberLogin&quot;</span> (<span class="attr">onChangeModalType</span>)=<span class="string">&quot;onChangeModalType($event)&quot;</span> (<span class="attr">onLogin</span>)=<span class="string">&quot;onLogin($event)&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-wy-layer-login</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-wy-layer-default</span> <span class="attr">name</span>=<span class="string">&quot;default&quot;</span> (<span class="attr">onChangeModalType</span>)=<span class="string">&quot;onChangeModalType($event)&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-wy-layer-default</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-wy-layer-register</span> <span class="attr">name</span>=<span class="string">&quot;register&quot;</span> (<span class="attr">onChangeModalType</span>)=<span class="string">&quot;onChangeModalType($event)&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-wy-layer-register</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-wy-layer-modal</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样在选择弹框子页面时根据name值来判断。</p>
+</li>
+<li><p>app.component.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">li</span> <span class="attr">nz-menu-item</span> (<span class="attr">click</span>)=<span class="string">&quot;openModalByMenu(&#x27;loginByPhone&#x27;)&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">i</span> <span class="attr">nz-icon</span> <span class="attr">nzType</span>=<span class="string">&quot;mobile&quot;</span> <span class="attr">nzTheme</span>=<span class="string">&quot;outline&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span>手机登录</span><br><span class="line">	<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">li</span> <span class="attr">nz-menu-item</span> (<span class="attr">click</span>)=<span class="string">&quot;openModalByMenu(&#x27;register&#x27;)&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">i</span> <span class="attr">nz-icon</span> <span class="attr">nzType</span>=<span class="string">&quot;user-add&quot;</span> <span class="attr">nzTheme</span>=<span class="string">&quot;outline&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span>注册</span><br><span class="line">	<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>app.component.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">private memberBatchActionsServer: MemberBatchActionsService,</span><br><span class="line"></span><br><span class="line">openModalByMenu (type: <span class="string">&#x27;loginByPhone&#x27;</span> | <span class="string">&#x27;register&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">&#x27;loginByPhone&#x27;</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.openModal(ModalTypes.LoginByPhone);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.openModal(ModalTypes.Register);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打开弹窗</span></span><br><span class="line">openModal (type: ModalTypes) &#123;</span><br><span class="line">    <span class="built_in">this</span>.memberBatchActionsServer.controlModal(<span class="literal">true</span>, type);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当点击登录或者注册时，就会通过参数的不通来判断当前需要设置哪一种状态，当wy-layer-modal中的Store监听到状态的改变就会根据当前改变后的状态改变渲染内容。因此在占位处使用<strong>ngSwitch</strong>指令。</p>
+</li>
+</ul>
+<ul>
+<li>wy-layer-modal.component.html<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> [<span class="attr">ngSwitch</span>]=<span class="string">&quot;currentModalType&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;&#x27;loginByPhone&#x27;&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">ng-content</span> <span class="attr">select</span>=<span class="string">&quot;[name=login]&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;&#x27;register&#x27;&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">ng-content</span> <span class="attr">select</span>=<span class="string">&quot;[name=register]&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchDefault</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">ng-content</span> &gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"></span><br><span class="line"> <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<p><em>有关<a target="_blank" rel="noopener" href="https://angular.cn/api/common/NgSwitch">ngSwitch</a>指令的使用可以点击浏览</em></p>
+<hr>
+<h2 id="实现接口"><a href="#实现接口" class="headerlink" title="实现接口"></a>实现接口</h2><ul>
+<li>member.service.ts<br>登录后需要显示当前登录人的一些信息，所以也需要获取当前登录人的个别数据。</li>
+</ul>
+<p><img data-src="https://img-blog.csdnimg.cn/20210114201822368.png" alt="在这里插入图片描述"></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 登录</span></span><br><span class="line"> login (formValue: LoginParams): Observable&lt;User&gt; &#123;</span><br><span class="line">     <span class="keyword">const</span> querystring = <span class="built_in">require</span>(<span class="string">&quot;querystring&quot;</span>);</span><br><span class="line">     <span class="keyword">const</span> params = <span class="keyword">new</span> HttpParams(&#123; <span class="attr">fromString</span>: querystring.stringify(formValue) &#125;);</span><br><span class="line">     <span class="built_in">console</span>.log(<span class="string">&#x27;stringify:&#x27;</span>, params);</span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">this</span>.http.get(<span class="built_in">this</span>.uri + <span class="string">&#x27;login/cellphone&#x27;</span>, &#123; params &#125;).pipe(</span><br><span class="line">         map(<span class="function"><span class="params">res</span> =&gt;</span> res <span class="keyword">as</span> User)</span><br><span class="line">     )</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 获取用户信息</span></span><br><span class="line"> getUserInfo (uid: string): Observable&lt;User&gt; &#123;</span><br><span class="line">     <span class="keyword">const</span> params = <span class="keyword">new</span> HttpParams().set(<span class="string">&#x27;uid&#x27;</span>, uid);</span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">this</span>.http.get(<span class="built_in">this</span>.uri + <span class="string">&#x27;user/detail&#x27;</span>, &#123; params &#125;).pipe(</span><br><span class="line">         map(<span class="function"><span class="params">res</span> =&gt;</span> res <span class="keyword">as</span> User)</span><br><span class="line">     )</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 退出</span></span><br><span class="line"> logOut (): Observable&lt;SampleBack&gt; &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">this</span>.http.get(<span class="built_in">this</span>.uri + <span class="string">&#x27;logout&#x27;</span>).pipe(</span><br><span class="line">         map(<span class="function"><span class="params">res</span> =&gt;</span> res <span class="keyword">as</span> SampleBack)</span><br><span class="line">     );</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里出了一点问题： 在格式化数据的时候，使用query-string类的时候一直报错，虽然使用了一些解决方案，但是都是不起效的。然后就用了最原始的require引用，这点还真是不明白为什么 </p>
+</blockquote>
+<hr>
+<h2 id="响应式表单"><a href="#响应式表单" class="headerlink" title="响应式表单"></a>响应式表单</h2><ul>
+<li>wy-layer-login.component.html</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;login-phone modal-content&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;modal-wrap&quot;</span>&gt;</span></span><br><span class="line">        </span><br><span class="line">      <span class="tag">&lt;<span class="name">form</span> <span class="attr">nz-form</span> <span class="attr">class</span>=<span class="string">&quot;login-form&quot;</span> [<span class="attr">formGroup</span>]=<span class="string">&quot;formModel&quot;</span> (<span class="attr">ngSubmit</span>)=<span class="string">&quot;onSubmit()&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span> <span class="attr">nzHasFeedback</span> <span class="attr">nzErrorTip</span>=<span class="string">&quot;请输入正确的手机号&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">nz-input-group</span> <span class="attr">nzPrefixIcon</span>=<span class="string">&quot;mobile&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;tel&quot;</span> <span class="attr">nz-input</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入手机号&quot;</span> <span class="attr">formControlName</span>=<span class="string">&quot;phone&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">nz-input-group</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span> <span class="attr">nzHasFeedback</span> <span class="attr">nzErrorTip</span>=<span class="string">&quot;请输入正确的密码&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">nz-input-group</span> <span class="attr">nzPrefixIcon</span>=<span class="string">&quot;lock&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;password&quot;</span> <span class="attr">nz-input</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入密码&quot;</span> <span class="attr">formControlName</span>=<span class="string">&quot;password&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">nz-input-group</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">        <span class="tag">&lt;<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;tools&quot;</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">label</span> <span class="attr">nz-checkbox</span> <span class="attr">class</span>=<span class="string">&quot;remember&quot;</span> <span class="attr">formControlName</span>=<span class="string">&quot;remember&quot;</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span>&gt;</span>记住密码<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">button</span> <span class="attr">nz-button</span> <span class="attr">class</span>=<span class="string">&quot;login-form-button&quot;</span> [<span class="attr">disabled</span>]=<span class="string">&quot;!formModel.valid&quot;</span> <span class="attr">nzType</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">nzBlock</span>&gt;</span>登陆<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">nz-form-control</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">nz-form-item</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;m-footer clearfix&quot;</span>&gt;</span></span><br><span class="line">    &lt;a (click)=&quot;onChangeModalType.emit(&#x27;default&#x27;)&quot;&gt; &lt; 其它登陆方式&lt;/a&gt;</span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> (<span class="attr">click</span>)=<span class="string">&quot;onChangeModalType.emit(&#x27;register&#x27;)&quot;</span>&gt;</span>没有账号？免费注册<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>wy-layer-login.component.ts<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> type LoginParams = &#123;</span><br><span class="line">    phone: number,</span><br><span class="line">    password: string,</span><br><span class="line">    remember: boolean,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    formModel: FormGroup;</span><br><span class="line">    @Input() wyRememberLogin: LoginParams;</span><br><span class="line"></span><br><span class="line">    @Output() onChangeModalType = <span class="keyword">new</span> EventEmitter&lt;string | <span class="keyword">void</span>&gt;();</span><br><span class="line">    @Output() onLogin = <span class="keyword">new</span> EventEmitter&lt;LoginParams&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(private fb: FormBuilder) &#123; &#125;</span><br><span class="line">    ngOnInit (): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.formModel = <span class="built_in">this</span>.fb.group(&#123;</span><br><span class="line">            phone: [<span class="string">&#x27;&#x27;</span>, [Validators.required, Validators.pattern(<span class="regexp">/^1\d&#123;10&#125;$/</span>)]],</span><br><span class="line">            password: [<span class="string">&#x27;&#x27;</span>, [Validators.required, Validators.minLength(<span class="number">6</span>)]],</span><br><span class="line">            remember: [<span class="literal">false</span>]</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ngOnChanges (changes: SimpleChanges): <span class="keyword">void</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> userLoginParams = changes.wyRememberLogin;</span><br><span class="line">        <span class="keyword">if</span> (userLoginParams) &#123;</span><br><span class="line">            <span class="keyword">let</span> phone = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="keyword">let</span> password = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="keyword">let</span> remember = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (userLoginParams.currentValue) &#123;</span><br><span class="line">                <span class="keyword">const</span> value = codeJson(userLoginParams.currentValue, <span class="string">&#x27;decode&#x27;</span>);</span><br><span class="line">                phone = value.phone;</span><br><span class="line">                password = value.password;</span><br><span class="line">                remember = value.remember;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">this</span>.setModal(&#123; phone, password, remember &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private setModal (&#123; phone, password, remember &#125;) &#123;</span><br><span class="line">        <span class="built_in">this</span>.formModel = <span class="built_in">this</span>.fb.group(&#123;</span><br><span class="line">            phone: [phone, [Validators.required, Validators.pattern(<span class="regexp">/^1\d&#123;10&#125;$/</span>)]],</span><br><span class="line">            password: [password, [Validators.required, Validators.minLength(<span class="number">6</span>)]],</span><br><span class="line">            remember: [remember]</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    onSubmit () &#123;</span><br><span class="line">        <span class="keyword">const</span> modal = <span class="built_in">this</span>.formModel;</span><br><span class="line">        <span class="keyword">if</span> (modal.valid) &#123;</span><br><span class="line">            <span class="built_in">this</span>.onLogin.emit(modal.value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+使用formbuilder模块能够快速的创建表单类，使用其来创建一个包含手机号，密码和复选框的一个组，然后再DOM中绑定其formname属性即可。<br><img data-src="https://img-blog.csdnimg.cn/20210114203021247.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+</ul>
+<pre><code>有一点不得不说，会用正则是真的可以方便很多——但是我不会</code></pre>
+<p>此页面只是展示，所有的逻辑都放到了父组件中，所以当点击登录时将表单的值发射给父组件即可。</p>
+<hr>
+<p>当父组件接收到传来的值后，就会调用登录接口。</p>
+<ul>
+<li>app.component.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">user: User;</span><br><span class="line">wyRememberLogin: LoginParams;</span><br><span class="line"><span class="keyword">constructor</span>(</span><br><span class="line">    private searchServe: SearchService,</span><br><span class="line">    private store$: Store&lt;AppModule&gt;,</span><br><span class="line">    private memberBatchActionsServer: MemberBatchActionsService,</span><br><span class="line">    private memberServe: MemberService,</span><br><span class="line">    private message: NzMessageService,</span><br><span class="line">    private storageServe: StorageService,</span><br><span class="line">) &#123;</span><br><span class="line">    <span class="keyword">const</span> userId = <span class="built_in">this</span>.storageServe.getStorage(<span class="string">&#x27;wyUserId&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span> (userId) &#123;</span><br><span class="line">        <span class="built_in">this</span>.store$.dispatch(SetUserId(&#123; <span class="attr">id</span>: userId &#125;));</span><br><span class="line">        <span class="built_in">this</span>.memberServe.getUserInfo(userId).subscribe(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.user = res</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> wyRememberLogin = <span class="built_in">this</span>.storageServe.getStorage(<span class="string">&#x27;wyRememberLogin&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span> (wyRememberLogin) &#123;</span><br><span class="line">        <span class="built_in">this</span>.wyRememberLogin = <span class="built_in">JSON</span>.parse(wyRememberLogin);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">// 登录</span></span><br><span class="line">onLogin (params: LoginParams) &#123;</span><br><span class="line">    <span class="built_in">this</span>.memberServe.login(params).subscribe((<span class="function"><span class="params">user</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.user = user;</span><br><span class="line">        <span class="built_in">this</span>.memberBatchActionsServer.controlModal(<span class="literal">false</span>);</span><br><span class="line">        <span class="built_in">this</span>.alertMessage(<span class="string">&#x27;success&#x27;</span>, <span class="string">&#x27;登陆成功&#x27;</span>);</span><br><span class="line">        <span class="built_in">this</span>.storageServe.setStorage(&#123;</span><br><span class="line">            key: <span class="string">&#x27;wyUserId&#x27;</span>,</span><br><span class="line">            value: user.profile.userId</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.store$.dispatch(SetUserId(&#123; <span class="attr">id</span>: user.profile.userId.toString() &#125;));</span><br><span class="line">        <span class="keyword">if</span> (params.remember) &#123;</span><br><span class="line">            <span class="built_in">this</span>.storageServe.setStorage(&#123;</span><br><span class="line">                key: <span class="string">&#x27;wyRememberLogin&#x27;</span>,</span><br><span class="line">                value: <span class="built_in">JSON</span>.stringify(codeJson(params))</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.storageServe.removeStorage(<span class="string">&#x27;wyRememberLogin&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;), (<span class="function"><span class="params">error</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.alertMessage(<span class="string">&#x27;error&#x27;</span>, error.message)</span><br><span class="line">    &#125;));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登出</span></span><br><span class="line">onLogout () &#123;</span><br><span class="line">    <span class="built_in">this</span>.memberServe.logOut().subscribe(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.user = <span class="literal">null</span>;</span><br><span class="line">        <span class="built_in">this</span>.storageServe.removeStorage(<span class="string">&#x27;wyUserId&#x27;</span>);</span><br><span class="line">        <span class="built_in">this</span>.store$.dispatch(SetUserId(&#123; <span class="attr">id</span>: <span class="string">&#x27;&#x27;</span> &#125;))</span><br><span class="line">        <span class="built_in">this</span>.alertMessage(<span class="string">&#x27;success&#x27;</span>, <span class="string">&#x27;已退出&#x27;</span>);</span><br><span class="line">    &#125;, (<span class="function"><span class="params">error</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.alertMessage(<span class="string">&#x27;error&#x27;</span>, error.message)</span><br><span class="line">    &#125;));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 提示信息</span></span><br><span class="line">private alertMessage (type: string, <span class="attr">msg</span>: string) &#123;</span><br><span class="line">    <span class="built_in">this</span>.message.create(type, msg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时会将登录信息作为参数调用登录API，将返回值存在全局，使用Store将弹框显隐的状态改为false。然后利用nzMessage弹出提示，最后使用封装的localstorage将登录人的ID存入内存。在使用Store将当前登录人的状态ID改写，如果登录时勾选记住密码，将会把表单的内容存入localstorage，如果没勾选将会删除。</p>
+<ul>
+<li>member.types.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">export</span> type User = &#123;</span><br><span class="line">    level?: number; <span class="comment">// 等级</span></span><br><span class="line">    listenSongs?: number; <span class="comment">// 听歌记录</span></span><br><span class="line">    profile: &#123;</span><br><span class="line">        userId: number, <span class="comment">// ID</span></span><br><span class="line">        nickname: string, <span class="comment">// 昵称</span></span><br><span class="line">        avatarUrl: string, <span class="comment">// 头像</span></span><br><span class="line">        backgroundUrl: string, <span class="comment">// 背景图</span></span><br><span class="line">        signature: string, <span class="comment">// 简介</span></span><br><span class="line">        gender: number, <span class="comment">// 性别</span></span><br><span class="line">        followeds: number, <span class="comment">// 粉丝</span></span><br><span class="line">        follows: number, <span class="comment">// 关注</span></span><br><span class="line">        eventCount: number, <span class="comment">// 动态</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登出返回</span></span><br><span class="line"><span class="keyword">export</span> interface SampleBack <span class="keyword">extends</span> AnyJson &#123;</span><br><span class="line">    code: number;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 加密数据</span></span><br><span class="line"><span class="keyword">export</span> interface AnyJson &#123;</span><br><span class="line">    [key: string]: any;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> type Signin = &#123;</span><br><span class="line">    code: number;</span><br><span class="line">    point?: number;</span><br><span class="line">    msg?: string;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>storage.service.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">getStorage (key: string, type = <span class="string">&#x27;local&#x27;</span>): string &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">window</span>[type + <span class="string">&#x27;Storage&#x27;</span>].getItem(key)</span><br><span class="line">&#125;</span><br><span class="line">setStorage (param: AnyJson | AnyJson[], type = <span class="string">&#x27;local&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> kv = <span class="built_in">Array</span>.isArray(param) ? param : [param];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> &#123; key, value &#125; <span class="keyword">of</span> kv) &#123;</span><br><span class="line">        <span class="built_in">window</span>[type + <span class="string">&#x27;Storage&#x27;</span>].setItem(key, value.toString())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">removeStorage (param: string | string[], type = <span class="string">&#x27;local&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> kv = <span class="built_in">Array</span>.isArray(param) ? param : [param];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> kv) &#123;</span><br><span class="line">        <span class="built_in">window</span>[type + <span class="string">&#x27;Storage&#x27;</span>].removeItem(item)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要是封装了set，能够同时将多组的键值对存储。</p>
+<p>其实账密存在内存中本身就不对，应该是利用token来检验，所以就当是拓展学习，也利用了base64插件来对账密进行加密和解密。</p>
+<ul>
+<li>base64.ts</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Base64 &#125; <span class="keyword">from</span> <span class="string">&quot;js-base64&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加密数据</span></span><br><span class="line"><span class="keyword">export</span> interface AnyJson &#123;</span><br><span class="line">    [key: string]: any;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">codeJson</span> (<span class="params">source: AnyJson, type = <span class="string">&#x27;encode&#x27;</span></span>): <span class="title">AnyJson</span> </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> result = &#123;&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> arr <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (source.hasOwnProperty(arr)) &#123;</span><br><span class="line">            result[Base64[type](arr)] = Base64[type](source[arr])</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>有关登录的安全验证还是有点迷惑的，对于token的理解还是不太明确，所以这个还是要好好的功课一下的。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>得以其偏爱，倾尽平生慷慨</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      <div style="display: inline-block;">
+        <img src="/images/reward.png" alt="Luck_SUN 美色当前,忠义让步">
+        <p>美色当前,忠义让步</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/CloudMusic/" rel="tag"><i class="fa fa-tag"></i> CloudMusic</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/a7b09b4f/" rel="prev" title="【Angular网易云】--25、登录弹框">
+      <i class="fa fa-chevron-left"></i> 【Angular网易云】--25、登录弹框
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/a80028c9/" rel="next" title="【Angular网易云】--27、HTTP拦截器">
+      【Angular网易云】--27、HTTP拦截器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%99%BB%E5%BD%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.</span> <span class="nav-text">登录实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%87%E6%8D%A2%E5%BC%B9%E7%AA%97%E9%A1%B5%E9%9D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">切换弹窗页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.</span> <span class="nav-text">实现接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E5%BC%8F%E8%A1%A8%E5%8D%95"><span class="nav-number">1.3.</span> <span class="nav-text">响应式表单</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Luck_SUN"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Luck_SUN</p>
+  <div class="site-description" itemprop="description">凛冬散尽，星河长明</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/sunwenwei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;sunwenwei" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sunWorkOne@163.com" title="E-Mail → mailto:sunWorkOne@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/u/6411331687?is_all=1" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;u&#x2F;6411331687?is_all&#x3D;1" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/sungoodluck666" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;sungoodluck666" rel="noopener" target="_blank"><i class="fa fa-eye fa-fw"></i>CSDN</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luck_SUN</span>
+    <span class="post-meta-divider"><br/></span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">184k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:47</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https'){
+   bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+  }
+  else{
+  bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+  }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'http://lucksun.work/posts/d4e2d6d6/',]
+      });
+      });
+  </script>
+
+</body>
+<script type="text/javascript" src="/js/click_show_text.js"></script>
+</html>

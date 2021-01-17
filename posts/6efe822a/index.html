@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="baidu-site-verification" content="code-ULv5esGRN0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lucksun.work","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="歌词歌词初始化播放面板左侧展示歌单歌曲，右侧展示当前歌曲歌词，并且实现和左侧相通的滚动条。因此要根据ID获取当前歌曲歌词。  song.service.ts12345678910111213&#x2F;&#x2F; 根据ID获取歌曲歌词 getLyric (id: number): Observable&lt;Lyric&gt; &amp;#123;     const params &#x3D; new HttpParams().s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Angular网易云】--15、歌词渲染">
+<meta property="og:url" content="http://lucksun.work/posts/6efe822a/index.html">
+<meta property="og:site_name" content="Luck_SUN">
+<meta property="og:description" content="歌词歌词初始化播放面板左侧展示歌单歌曲，右侧展示当前歌曲歌词，并且实现和左侧相通的滚动条。因此要根据ID获取当前歌曲歌词。  song.service.ts12345678910111213&#x2F;&#x2F; 根据ID获取歌曲歌词 getLyric (id: number): Observable&lt;Lyric&gt; &amp;#123;     const params &#x3D; new HttpParams().s">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20201221221351484.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20201221223504617.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20201221225451752.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20201221225815556.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210101222126661.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2020-12-07T09:23:38.000Z">
+<meta property="article:modified_time" content="2021-01-17T08:25:33.812Z">
+<meta property="article:author" content="Luck_SUN">
+<meta property="article:tag" content="CloudMusic">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20201221221351484.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="http://lucksun.work/posts/6efe822a/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【Angular网易云】--15、歌词渲染 | Luck_SUN</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6cbaa2e8cde5f381abcb1a50f8cdfc86";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Luck_SUN" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Luck_SUN</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">43</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/sunwenwei" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lucksun.work/posts/6efe822a/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Luck_SUN">
+      <meta itemprop="description" content="凛冬散尽，星河长明">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luck_SUN">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Angular网易云】--15、歌词渲染
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-07 17:23:38" itemprop="dateCreated datePublished" datetime="2020-12-07T17:23:38+08:00">2020-12-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-17 16:25:33" itemprop="dateModified" datetime="2021-01-17T16:25:33+08:00">2021-01-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CloudMusic/" itemprop="url" rel="index"><span itemprop="name">CloudMusic</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="歌词"><a href="#歌词" class="headerlink" title="歌词"></a>歌词</h1><h2 id="歌词初始化"><a href="#歌词初始化" class="headerlink" title="歌词初始化"></a>歌词初始化</h2><p>播放面板左侧展示歌单歌曲，右侧展示当前歌曲歌词，并且实现和左侧相通的滚动条。因此要根据ID获取当前歌曲歌词。<br><img data-src="https://img-blog.csdnimg.cn/20201221221351484.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70" alt="歌词API"></p>
+<ul>
+<li>song.service.ts<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据ID获取歌曲歌词</span></span><br><span class="line"> getLyric (id: <span class="built_in">number</span>): Observable&lt;Lyric&gt; &#123;</span><br><span class="line">     <span class="keyword">const</span> params = <span class="keyword">new</span> HttpParams().set(<span class="string">&#x27;id&#x27;</span>, id.toString());</span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">this</span>.http.get(<span class="built_in">this</span>.uri + <span class="string">&#x27;lyric&#x27;</span>, &#123; params &#125;)</span><br><span class="line">         .pipe(map((res: &#123;</span><br><span class="line">             [key: <span class="built_in">string</span>]: &#123; lyric: <span class="built_in">string</span>; &#125;</span><br><span class="line">         &#125;) =&gt; &#123;</span><br><span class="line">             <span class="keyword">return</span> &#123;</span><br><span class="line">                 lyric: res.lrc.lyric,</span><br><span class="line">                 tlyric: res.tlyric.lyric,</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;))</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+<li>common.types.ts<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 歌词</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">type</span> Lyric = &#123;</span><br><span class="line">    lyric: <span class="built_in">string</span>, <span class="comment">// 原文</span></span><br><span class="line">    tlyric: <span class="built_in">string</span> <span class="comment">// 译文</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+根据api获取当前歌曲需要的部分，并且在common.types.ts中声明Lyric类型，将返回值res处理成需要的键值对格式。</li>
+</ul>
+<h2 id="处理歌词"><a href="#处理歌词" class="headerlink" title="处理歌词"></a>处理歌词</h2><h3 id="单语歌词"><a href="#单语歌词" class="headerlink" title="单语歌词"></a>单语歌词</h3><p>当监听当前歌曲值发生变化时，不仅要重新获取当前歌曲索引还有获取当前歌曲歌词。</p>
+<ul>
+<li>wy-player-panel.component.ts<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">  currentLyric: BaseLyricLine[]; <span class="comment">// 歌词</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据监听</span></span><br><span class="line">  ngOnChanges (changes: SimpleChanges): <span class="built_in">void</span> &#123;</span><br><span class="line">      <span class="comment">// 监听当前歌曲变化</span></span><br><span class="line">      <span class="keyword">if</span> (changes[<span class="string">&#x27;currentSong&#x27;</span>]) &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="built_in">this</span>.currentSong) &#123;</span><br><span class="line">              <span class="built_in">this</span>.currentIndex = findIndex(<span class="built_in">this</span>.songList, <span class="built_in">this</span>.currentSong);</span><br><span class="line">              <span class="built_in">this</span>.updateLyric();</span><br><span class="line">              <span class="keyword">if</span> (<span class="built_in">this</span>.show) &#123;</span><br><span class="line">                  <span class="built_in">this</span>.scrollToCurrent();</span><br><span class="line">              &#125;</span><br><span class="line">          &#125; </span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据ID获取歌词</span></span><br><span class="line">  <span class="keyword">private</span> updateLyric () &#123;</span><br><span class="line">      <span class="built_in">this</span>.songServe.getLyric(<span class="built_in">this</span>.currentSong.id).subscribe(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> lyric = <span class="keyword">new</span> WyLyric(res);</span><br><span class="line">          <span class="built_in">this</span>.currentLyric = lyric.lines;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+<li>wy-lyric.ts<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Lyric &#125; <span class="keyword">from</span> <span class="string">&quot;src/app/services/data-types/common.types&quot;</span>;</span><br><span class="line"><span class="comment">// 歌词基类</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> BaseLyricLine &#123;</span><br><span class="line">    txt: <span class="built_in">string</span>;</span><br><span class="line">    txtCn: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 歌词派生类</span></span><br><span class="line"><span class="keyword">interface</span> LyricLine <span class="keyword">extends</span> BaseLyricLine &#123;</span><br><span class="line">    time: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> timeExp = <span class="regexp">/\[(\d&#123;2&#125;):(\d&#123;2&#125;)\.(\d&#123;2,3&#125;)\]/</span>;  <span class="comment">//正值-匹配 [00:34.910] 类型</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> WyLyric &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> lrc: Lyric; <span class="comment">// 暂存传来的歌词</span></span><br><span class="line">    lines: LyricLine[] = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(<span class="params">lrc: Lyric</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.lrc = lrc;</span><br><span class="line">        <span class="built_in">this</span>.init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> init () &#123;</span><br><span class="line">        <span class="comment">// 判断是否是外语歌曲</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.lrc.tlyric) &#123;</span><br><span class="line">            <span class="built_in">this</span>.generTLyric();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.generLyric();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解析单语歌词</span></span><br><span class="line">    <span class="keyword">private</span> generLyric () &#123;</span><br><span class="line">        <span class="keyword">const</span> lines = <span class="built_in">this</span>.lrc.lyric.split(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">        lines.forEach(<span class="function"><span class="params">line</span> =&gt;</span> <span class="built_in">this</span>.makeLine(line))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解析双语歌词</span></span><br><span class="line">    <span class="keyword">private</span> generTLyric () &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理单行歌词</span></span><br><span class="line">    <span class="keyword">private</span> makeLine (line: <span class="built_in">string</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> result = timeExp.exec(line);</span><br><span class="line">        <span class="keyword">if</span> (result) &#123;</span><br><span class="line">            <span class="keyword">const</span> txt = line.replace(timeExp, <span class="string">&#x27;&#x27;</span>).trim();</span><br><span class="line">            <span class="keyword">const</span> txtCn = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="keyword">if</span> (txt) &#123;</span><br><span class="line">                <span class="keyword">const</span> thirdResult = result[<span class="number">3</span>] || <span class="string">&#x27;00&#x27;</span>;</span><br><span class="line">                <span class="keyword">const</span> len = thirdResult.length;</span><br><span class="line">                <span class="keyword">const</span> _thirdResult = len &gt; <span class="number">2</span> ? <span class="built_in">parseInt</span>(thirdResult) : <span class="built_in">parseInt</span>(thirdResult) * <span class="number">10</span>;</span><br><span class="line">                <span class="keyword">const</span> time = <span class="built_in">Number</span>(result[<span class="number">1</span>]) * <span class="number">60</span> * <span class="number">1000</span> + <span class="built_in">Number</span>(result[<span class="number">2</span>]) * <span class="number">60</span> + _thirdResult;</span><br><span class="line">                <span class="built_in">this</span>.lines.push(&#123; txt, txtCn, time &#125;)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+当实例化歌词类的时候先暂存传来的歌词，然后判断当前歌词是否是双语，当仅为单语时会将歌词中string类型的原文转为数组，因为每一行歌词前都会有时间提示，所以要通过makeLine方法单独处理每一行。<br><img data-src="https://img-blog.csdnimg.cn/20201221223504617.png"><br>在处理单行歌词时使用了正则表达式来匹配字符串格式的参数。</li>
+</ul>
+<blockquote>
+<p>RegExpObject.exec(string)<br>返回一个数组，其中存放匹配的结果。如果未找到匹配，则返回值为 null。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">string</td>
+<td align="center">必需。要检索的字符串。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>如果 exec() 找到了匹配的文本，则返回一个结果数组。否则，返回 null。此数组的第 0 个元素是与正则表达式相匹配的文本，第 1 个元素是与 RegExpObject 的第 1 个子表达式相匹配的文本（如果有的话），第 2 个元素是与 RegExpObject 的第 2 个子表达式相匹配的文本（如果有的话），以此类推。除了数组元素和 length 属性之外，exec() 方法还返回两个属性。index 属性声明的是匹配文本的第一个字符的位置。input 属性则存放的是被检索的字符串 string。我们可以看得出，在调用非全局的 RegExp 对象的 exec() 方法时，返回的数组与调用方法 String.match() 返回的数组是相同的。</p>
+</blockquote>
+<p>在单行歌词中匹配”[分钟:秒.毫秒]”类型的字符串<br><img data-src="https://img-blog.csdnimg.cn/20201221225451752.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70"><br>如果能匹配到，就在当前单行歌词中将匹配到的字符串置空并去空格，这样就能拿到实际渲染的歌词了。而在时间上是将分钟，秒转换为毫秒并存下来。</p>
+<ul>
+<li>wy-player-panel.component.html<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 歌词列表 --&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">app-wy-scroll</span> <span class="attr">class</span>=<span class="string">&quot; list-lyric&quot;</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">li</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let line of currentLyric&quot;</span>&gt;</span></span><br><span class="line">                   &#123;&#123;line.txt&#125;&#125; </span><br><span class="line">                   <span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line">                   &#123;&#123;line?.txtCn&#125;&#125;   </span><br><span class="line">                <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">app-wy-scroll</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<img data-src="https://img-blog.csdnimg.cn/20201221225815556.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70"></li>
+</ul>
+<hr>
+<h3 id="双语歌词"><a href="#双语歌词" class="headerlink" title="双语歌词"></a>双语歌词</h3><p>在拿到国外歌曲的歌词时，会有翻译的文本，这时候就要将原文和译文一句句的对应起来。在WyLyric类中通过对传送进来的歌词类判断，来决定歌词处理的通道是走单语还是双语。</p>
+<ul>
+<li>wy-lyriv.ts<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解析双语歌词</span></span><br><span class="line">   <span class="keyword">private</span> generTLyric () &#123;</span><br><span class="line">   	<span class="comment">// 获取原文数组</span></span><br><span class="line">       <span class="keyword">const</span> lines = <span class="built_in">this</span>.lrc.lyric.split(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">       <span class="comment">// 获取译文数组</span></span><br><span class="line">       <span class="keyword">const</span> tLines = <span class="built_in">this</span>.lrc.tlyric.split(<span class="string">&#x27;\n&#x27;</span>).filter(<span class="function"><span class="params">item</span> =&gt;</span> timeExp.exec(item) != <span class="literal">null</span>);</span><br><span class="line">       <span class="comment">// 判断原文与译文的长度关系</span></span><br><span class="line">       <span class="keyword">const</span> moreLine = lines.length - tLines.length;</span><br><span class="line">       <span class="keyword">let</span> tempArr = [];</span><br><span class="line">       <span class="keyword">if</span> (moreLine &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">           tempArr = [lines, tLines];</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           tempArr = [tLines, lines];</span><br><span class="line">       &#125;</span><br><span class="line">	<span class="comment">// 获取短的歌词数组中的第一个时间部分</span></span><br><span class="line">       <span class="keyword">const</span> first = timeExp.exec(tempArr[<span class="number">1</span>][<span class="number">0</span>])[<span class="number">0</span>];</span><br><span class="line">	<span class="comment">// 获取长的歌词数组需要跳过的索引</span></span><br><span class="line">       <span class="keyword">const</span> skipIndex = tempArr[<span class="number">0</span>].findIndex(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">           <span class="keyword">const</span> exec = timeExp.exec(item);</span><br><span class="line">           <span class="keyword">if</span> (exec) &#123;</span><br><span class="line">               <span class="keyword">return</span> exec[<span class="number">0</span>] === first;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line">	</span><br><span class="line">       <span class="keyword">const</span> _skip = skipIndex === <span class="number">-1</span> ? <span class="number">0</span> : skipIndex;</span><br><span class="line">       <span class="keyword">const</span> skipItems = tempArr[<span class="number">0</span>].slice(<span class="number">0</span>, _skip);</span><br><span class="line">       <span class="keyword">if</span> (skipItems.length) &#123;</span><br><span class="line">           skipItems.forEach(<span class="function"><span class="params">line</span> =&gt;</span> <span class="built_in">this</span>.makeLine(line));</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">let</span> zipLines$;</span><br><span class="line">       <span class="keyword">if</span> (moreLine &gt; <span class="number">0</span>) &#123;</span><br><span class="line">           zipLines$ = zip(<span class="keyword">from</span>(lines).pipe(skip(_skip)), <span class="keyword">from</span>(tLines));</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           zipLines$ = zip(<span class="keyword">from</span>(lines), <span class="keyword">from</span>(tLines).pipe(skip(_skip)));</span><br><span class="line">       &#125;</span><br><span class="line">       zipLines$.subscribe(<span class="function">(<span class="params">[line, tLine]</span>) =&gt;</span> <span class="built_in">this</span>.makeLine(line, tLine))</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 处理单行歌词</span></span><br><span class="line">   <span class="keyword">private</span> makeLine (line: <span class="built_in">string</span>, tLine = <span class="string">&#x27;&#x27;</span>) &#123;</span><br><span class="line">       <span class="keyword">const</span> result = timeExp.exec(line);</span><br><span class="line">       <span class="keyword">if</span> (result) &#123;</span><br><span class="line">           <span class="keyword">const</span> txt = line.replace(timeExp, <span class="string">&#x27;&#x27;</span>).trim();</span><br><span class="line">           <span class="keyword">const</span> txtCn = tLine ? tLine.replace(timeExp, <span class="string">&#x27;&#x27;</span>).trim() : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">           <span class="keyword">if</span> (txt) &#123;</span><br><span class="line">               <span class="keyword">const</span> thirdResult = result[<span class="number">3</span>] || <span class="string">&#x27;00&#x27;</span>;</span><br><span class="line">               <span class="keyword">const</span> len = thirdResult.length;</span><br><span class="line">               <span class="keyword">const</span> _thirdResult = len &gt; <span class="number">2</span> ? <span class="built_in">parseInt</span>(thirdResult) : <span class="built_in">parseInt</span>(thirdResult) * <span class="number">10</span>;</span><br><span class="line">               <span class="keyword">const</span> time = <span class="built_in">Number</span>(result[<span class="number">1</span>]) * <span class="number">60</span> * <span class="number">1000</span> + <span class="built_in">Number</span>(result[<span class="number">2</span>]) * <span class="number">60</span> + _thirdResult;</span><br><span class="line">               <span class="built_in">this</span>.lines.push(&#123; txt, txtCn, time &#125;)</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+在通过获取双语歌词回调中，声明局部变量lines和tLines来保存传递过来的歌词的原文和译文部分，api数据中观察到原文和译文可能不对应，因此译文部分要经过一个空值筛选。因为二者不一 一对应，但是在渲染的时候要达到一句原文一句译文，所以需要判断。为了方便取值，声明一个装有原文译文数组的数组，当原文的长度大于等于译文，将原文放在索引0，反之放在索引1。<blockquote>
+<p>原文和译文长度可能不同，原文中可能含有一些版权声明和作词作曲介绍，这时候译文可能没有翻译，所以长度不同，这时的逻辑就是一是要全部显示原文歌词，但是还要将原文译文相对应。</p>
+</blockquote>
+</li>
+</ul>
+<p>此时用正则获取短的歌词数组中第一条数据的时间部分，然后用findIndex在长的歌词数组中寻找该时间部分等于短的歌词数组中的一条的时间部分，拿到索引。</p>
+<blockquote>
+<p>findIndex()</p>
+<ul>
+<li>返回传入一个测试条件（函数）符合条件的数组第一个元素位置。</li>
+<li>为数组中的每个元素都调用一次函数执行：当数组中的元素在测试条件时返回 true 时, 返回符合条件的元素的索引位置，之后的值不会再调用执行函数。<strong>如果没有符合条件的元素返回 -1</strong></li>
+</ul>
+<p><strong>注意: findIndex() 对于空数组，函数是不会执行的。其并没有改变数组的原始值。</strong> </p>
+</blockquote>
+<p>所以此时要将返回-1的时候转为0，即原文和译文长度相等，此时不用截取任何数据。截取数据不为空时，在将截取的数据单独提前push到渲染的歌词中。之后便是要处理一一对应的歌词了。</p>
+<p>此时判断原文和译文的长度关系，如果原文长，就将原文跳过获取的索引，然后通过zip()来得到一个 <strong>[ 原文， 译文 ]observable类型的数组</strong>。译文长就将译文跳过获取的索引。然后在将得到的数据订阅处理单行歌词的回调。<strong>此时要将之前写死的单条译文写一个判断</strong></p>
+<p><img data-src="https://img-blog.csdnimg.cn/20210101222126661.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N1bmdvb2RsdWNrNjY2,size_16,color_FFFFFF,t_70"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>其中使用了正则表达式，很显然是一块短板，而且在使用zip()时提示方法不再支持，而是建议使用map来操作，目前为了理解没有修改，后续来调整这一方面！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>得以其偏爱，倾尽平生慷慨</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      <div style="display: inline-block;">
+        <img src="/images/reward.png" alt="Luck_SUN 美色当前,忠义让步">
+        <p>美色当前,忠义让步</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/CloudMusic/" rel="tag"><i class="fa fa-tag"></i> CloudMusic</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/2ac17ac2/" rel="prev" title="【Angular网易云】--14、底部信息与功能（二）">
+      <i class="fa fa-chevron-left"></i> 【Angular网易云】--14、底部信息与功能（二）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/8f3a274f/" rel="next" title="【你不知道的JS--上】——1、作用域">
+      【你不知道的JS--上】——1、作用域 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%8C%E8%AF%8D"><span class="nav-number">1.</span> <span class="nav-text">歌词</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%8C%E8%AF%8D%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">歌词初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E6%AD%8C%E8%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">处理歌词</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E8%AF%AD%E6%AD%8C%E8%AF%8D"><span class="nav-number">1.2.1.</span> <span class="nav-text">单语歌词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E8%AF%AD%E6%AD%8C%E8%AF%8D"><span class="nav-number">1.2.2.</span> <span class="nav-text">双语歌词</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Luck_SUN"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Luck_SUN</p>
+  <div class="site-description" itemprop="description">凛冬散尽，星河长明</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/sunwenwei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;sunwenwei" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sunWorkOne@163.com" title="E-Mail → mailto:sunWorkOne@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/u/6411331687?is_all=1" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;u&#x2F;6411331687?is_all&#x3D;1" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/sungoodluck666" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;sungoodluck666" rel="noopener" target="_blank"><i class="fa fa-eye fa-fw"></i>CSDN</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luck_SUN</span>
+    <span class="post-meta-divider"><br/></span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">184k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:47</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https'){
+   bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+  }
+  else{
+  bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+  }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'http://lucksun.work/posts/6efe822a/',]
+      });
+      });
+  </script>
+
+</body>
+<script type="text/javascript" src="/js/click_show_text.js"></script>
+</html>
